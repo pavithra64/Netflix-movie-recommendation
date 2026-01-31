@@ -1,8 +1,7 @@
 import streamlit as st
 import pickle
-from recommender import FlixHub
 import gzip
-import zipfile
+from recommender import FlixHub
 
 # ---------------------------------------------------
 # Page configuration
@@ -14,24 +13,23 @@ st.set_page_config(
 )
 
 # ---------------------------------------------------
-# Load data 
+# Load data (compressed, cached)
 # ---------------------------------------------------
 @st.cache_data
 def load_artifacts():
     with gzip.open("final_data.pkl.gz", "rb") as f:
         df = pickle.load(f)
 
-    with zipfile.ZipFile("tfidf_vectorizer.zip") as z:
-        with z.open("tfidf_vectorizer.pkl", "rb") as f:
-            tfidf = pickle.load(f)
+    with gzip.open("tfidf_matrix.pkl.gz", "rb") as f:
+        tfidf_matrix = pickle.load(f)
 
-    return df, tfidf
+    return df, tfidf_matrix
 
 
-df, tfidf = load_artifacts()
+df, tfidf_matrix = load_artifacts()
 
 # Initialize recommender
-flixhub = FlixHub(df, tfidf)
+flixhub = FlixHub(df, tfidf_matrix)
 
 # ---------------------------------------------------
 # UI
@@ -85,3 +83,4 @@ if st.button("🎯 Get Recommendations"):
 
         except Exception as e:
             st.error("Something went wrong while generating recommendations.")
+
