@@ -1,6 +1,7 @@
 import streamlit as st
 import pickle
 from recommender import FlixHub
+import gzip
 
 # ---------------------------------------------------
 # Page configuration
@@ -12,23 +13,23 @@ st.set_page_config(
 )
 
 # ---------------------------------------------------
-# Load data (cached for performance)
+# Load data 
 # ---------------------------------------------------
 @st.cache_data
 def load_artifacts():
-    with open("final_data.pkl", "rb") as f:
+    with open("final_data.pkl.gz", "rb") as f:
         df = pickle.load(f)
 
-    with open("cosine_sim.pkl", "rb") as f:
-        cosine_sim = pickle.load(f)
+    with open("tfidf_vectorizer.pkl", "rb") as f:
+        tfidf = pickle.load(f)
 
-    return df, cosine_sim
+    return df, tfidf
 
 
-df, cosine_sim = load_artifacts()
+df, tfidf = load_artifacts()
 
 # Initialize recommender
-flixhub = FlixHub(df, cosine_sim)
+flixhub = FlixHub(df, tfidf)
 
 # ---------------------------------------------------
 # UI
