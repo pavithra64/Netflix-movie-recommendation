@@ -1,10 +1,9 @@
 import streamlit as st
-import pandas as pd
-from sklearn.feature_extraction.text import TfidfVectorizer
+import pickle
 from recommender import FlixHub
 
 # ---------------------------------------------------
-# Page config
+# Page configuration
 # ---------------------------------------------------
 st.set_page_config(
     page_title="Netflix Recommendation System",
@@ -13,23 +12,23 @@ st.set_page_config(
 )
 
 # ---------------------------------------------------
-# Load & prepare data
+# Load data (cached for performance)
 # ---------------------------------------------------
 @st.cache_data
-def load_data():
-    df = pd.read_csv("netflix_titles.csv")
-    df["description"] = df["description"].fillna("")
-    return df
+def load_artifacts():
+    with open("final_data.pkl", "rb") as f:
+        df = pickle.load(f)
 
-@st.cache_resource
-def build_tfidf(df):
-    tfidf = TfidfVectorizer(stop_words="english")
-    tfidf_matrix = tfidf.fit_transform(df["description"])
-    return tfidf_matrix
+    with open("cosine_sim.pkl", "rb") as f:
+        cosine_sim = pickle.load(f)
 
-df = load_data()
-tfidf_matrix = build_tfidf(df)
-flixhub = FlixHub(df, tfidf_matrix)
+    return df, cosine_sim
+
+
+df, cosine_sim = load_artifacts()
+
+# Initialize recommender
+flixhub = FlixHub(df, cosine_sim)
 
 # ---------------------------------------------------
 # UI
@@ -43,31 +42,43 @@ st.write(
 
 st.markdown("### 🎥 How it works")
 st.info(
-    "This system uses **TF-IDF vectorization** and "
-    "**cosine similarity** to recommend similar content."
+    "This recommendation system uses **TF-IDF vectorization** and "
+    "**cosine similarity** to recommend movies and TV shows based on content."
 )
 
+# ---------------------------------------------------
+# User Input
+# ---------------------------------------------------
 st.markdown("### 🔍 Search")
-title = st.text_input(
+movie_name = st.text_input(
     "Enter a Movie or TV Show title",
-    placeholder="e.g. Blood & Water"
+    placeholder="e.g. Chappie"
 )
 
+# ---------------------------------------------------
+# Recommendation Button
+# ---------------------------------------------------
 if st.button("🎯 Get Recommendations"):
-    if title.strip() == "":
-        st.warning("Please enter a title.")
+    if movie_name.strip() == "":
+        st.warning("Please enter a movie or TV show name.")
     else:
-        movies, tv_shows = flixhub.recommendation(title)
+        try:
+            movies, tv_shows = flixhub.recommendation(
+                movie_name, total_result=10
+            )
 
-        if not movies and not tv_shows:
-            st.error("No recommendations found.")
-        else:
-            if movies:
-                st.subheader("🎬 Recommended Movies")
-                for i, m in enumerate(movies, 1):
-                    st.write(f"{i}. {m}")
+            if not movies and not tv_shows:
+                st.error("No recommendations found. Try another title.")
+            else:
+                if movies:
+                    st.subheader("🎬 Recommended Movies")
+                    for i, movie in enumerate(movies, 1):
+                        st.write(f"{i}. {movie}")
 
-            if tv_shows:
-                st.subheader("📺 Recommended TV Shows")
-                for i, t in enumerate(tv_shows, 1):
-                    st.write(f"{i}. {t}")
+                if tv_shows:
+                    st.subheader("📺 Recommended TV Shows")
+                    for i, show in enumerate(tv_shows, 1):
+                        st.write(f"{i}. {show}")
+
+        except Exception as e:
+            st.error("Something went wrong while generating recommendations.")
