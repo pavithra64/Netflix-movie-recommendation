@@ -24,5 +24,6 @@ A content-based recommendation system that suggests similar movies and TV shows 
 
 ## 📌 Author
 Pavithra Palanivel
-MSc Data Science and Business Analytics
-VISTAS.
+
+-MSc Data Science and Business Analytics,
+-VISTAS.
