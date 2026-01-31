@@ -2,6 +2,7 @@ import streamlit as st
 import pickle
 from recommender import FlixHub
 import gzip
+import zipfile
 
 # ---------------------------------------------------
 # Page configuration
@@ -20,8 +21,9 @@ def load_artifacts():
     with gzip.open("final_data.pkl.gz", "rb") as f:
         df = pickle.load(f)
 
-    with open("tfidf_vectorizer.pkl", "rb") as f:
-        tfidf = pickle.load(f)
+    with zipfile.ZipFile("tfidf_vectorizer.zip") as z:
+        with z.open("tfidf_vectorizer.pkl", "rb") as f:
+            tfidf = pickle.load(f)
 
     return df, tfidf
 
