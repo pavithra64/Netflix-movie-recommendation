@@ -17,7 +17,7 @@ st.set_page_config(
 # ---------------------------------------------------
 @st.cache_data
 def load_artifacts():
-    with open("final_data.pkl.gz", "rb") as f:
+    with gzip.open("final_data.pkl.gz", "rb") as f:
         df = pickle.load(f)
 
     with open("tfidf_vectorizer.pkl", "rb") as f:
