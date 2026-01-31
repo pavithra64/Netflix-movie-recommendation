@@ -20,8 +20,9 @@ A content-based recommendation system that suggests similar movies and TV shows 
 
 ## 🌍 Live Demo
 - Hugging Face Spaces: (https://huggingface.co/spaces/Pavithra64/Netflix_movie_recommendation)
-- Streamlit Cloud: 
+- Streamlit Cloud: https://netflix-movie-recommendation-06.streamlit.app/
 
 ## 📌 Author
 Pavithra Palanivel
-MSc Data Science Student
+MSc Data Science and Business Analytics
+VISTAS.
